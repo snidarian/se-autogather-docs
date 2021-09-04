@@ -113,8 +113,12 @@ def main() -> None:
     keyword_search_box(args.keyword)
 
     documents_metadata_list = gather_urls_on_page()
-    for item in documents_metadata_list:
-        print(item)
+    if args.list:
+        count = 1
+        for document_metadata in documents_metadata_list:
+            print(f"{count}. {GREEN}{document_metadata[0]}{RESET}")
+            print(f"{YELLOW}{document_metadata[1]}{RESET} - {BLUE}{document_metadata[2]}{RESET}")
+            count+=1
 
 
 if __name__ == "__main__":
