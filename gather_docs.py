@@ -64,14 +64,29 @@ def keyword_search_box(search_term) -> None:
 
 # Gathers url link document-download-pages one page at a time for X number of document pages
 
-def gather_urls_on_page() -> list:
+def gather_metadata_on_page() -> list:
     document_metadata = []
     for document_index in range(2, (100 + 1), 2):
         document_title = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, f'/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[{document_index}]/div/table/tbody/tr/td[2]/table/tbody/tr[1]/td/h3/a')))
-        document_link = driver.find_element_by_xpath(f'/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[{document_index}]/div/table/tbody/tr/td[2]/table/tbody/tr[1]/td/h3/a').get_attribute('href')
-        extension_and_size = driver.find_element_by_xpath(f'/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[{document_index}]/div/table/tbody/tr/td[2]/table/tbody/tr[2]/td/div[2]/div[3]/div[2]')
-        document_metadata.append([document_title.text, document_link, extension_and_size.text])
+        document_title = document_title.text
+        document_link = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, f'/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[{document_index}]/div/table/tbody/tr/td[2]/table/tbody/tr[1]/td/h3/a')))
+        document_link = document_link.get_attribute('href')
+        # This block below is necessary due to the fact that the xpath for the ext and filesize are sometimes altered or missing
+        try:
+            extension_and_size = driver.find_element_by_xpath(f'/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[{document_index}]/div/table/tbody/tr/td[2]/table/tbody/tr[2]/td/div[2]/div[3]/div[2]')
+            extension_and_size = extension_and_size.text
+        except:
+            print(f"File ext and size for {document_title} not found")
+        document_metadata.append([document_title, document_link, extension_and_size])
     return document_metadata
+
+
+def print_colored_metadata_to_terminal(metadata_list) -> None:
+    count = 1
+    for document_metadata in metadata_list:
+        print(f"{count}. {GREEN}{document_metadata[0]}{RESET}")
+        print(f"\t{YELLOW}{document_metadata[1]}{RESET} - {BLUE}{document_metadata[2]}{RESET}\n")
+        count+=1
 
 
 def navigate_to_next_results_page() -> None:
@@ -107,18 +122,13 @@ def main() -> None:
     args = parser.add_argument("keyword", help="Keyword search term", type=str)
     args = parser.parse_args()
     # from this keyword a [KEYWORD]_documents.csv file is generated and then utilized by other functions in the program
-    print(f"Searching for Docs related to keyword: '{args.keyword}'")
+    print(f"\nSearching for Docs related to keyword: '{args.keyword}...'\n\n")
     #download_links_from_csv("document_urls.csv")
 
     keyword_search_box(args.keyword)
 
-    documents_metadata_list = gather_urls_on_page()
-    if args.list:
-        count = 1
-        for document_metadata in documents_metadata_list:
-            print(f"{count}. {GREEN}{document_metadata[0]}{RESET}")
-            print(f"{YELLOW}{document_metadata[1]}{RESET} - {BLUE}{document_metadata[2]}{RESET}")
-            count+=1
+    documents_metadata_list = gather_metadata_on_page()
+    print_colored_metadata_to_terminal(documents_metadata_list)
 
 
 if __name__ == "__main__":
