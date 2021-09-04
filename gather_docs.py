@@ -34,7 +34,29 @@ os.system('jvs -s')
 
 
 
+# Searches the document pages with global navbar by exact keyword.
+def keyword_search_documents() -> None:
+    pass
 
+
+# Gathers url link document-download-pages one page at a time for X number of document pages
+def gather_gathers() -> None:
+    pass
+
+
+
+def download_linksrows_from_csv(csv_filename) -> None:
+
+
+
+def main() -> None:
+    pass
+
+
+
+
+if __name__ == "__main__":
+    main()
 
 
 
