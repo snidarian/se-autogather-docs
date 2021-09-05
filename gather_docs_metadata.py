@@ -21,7 +21,6 @@ import os
 # terminal coloring
 from colorama import Fore
 # Argparse to allow various functions to run in different orders
-import argparse
 import csv
 import time
 
@@ -41,13 +40,12 @@ OPTIONS = Options()
 OPTIONS.profile = '/home/cn1d4r14n/.mozilla/firefox/t8oqdk41.default-esr'
 
 # will eventually run headlessly
-OPTIONS.headless = False
+OPTIONS.headless = True
 
 # link to web browser driver
 SERVICE = Service('/home/cn1d4r14n/Documents/geckodriver')
 
 driver = webdriver.Firefox(options=OPTIONS, service=SERVICE)
-
 
 
 # Searches the document pages with global navbar by exact keyword.
@@ -80,6 +78,7 @@ def gather_metadata_on_page() -> list:
             extension_and_size = extension_and_size.text
         except:
             print(f"File ext and size for {document_title} not found")
+            extension_and_size = "NULL"
         document_metadata.append([document_title, document_link, extension_and_size])
     return document_metadata
 
@@ -118,10 +117,6 @@ def download_links_from_csv(csv_filename) -> None:
             link_url = driver.find_element_by_xpath('/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[2]/div[1]/div[1]/div/a').get_attribute('href')
             list_item_count += 1
 
-
-def change_VPN_IP() -> None:
-    print("Changing VPN test statement....")
-    os.system('jvs -r')
 
 
 def main() -> None:
