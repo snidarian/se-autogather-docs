@@ -59,16 +59,30 @@ def change_vpn() -> bool:
 
 # given the input of a link, the function navigate to the link and attempt to download the document found there by the .click() method
 # based on whether it was successful or not it will return a boolean, change the vpn and try again
-def download_document_at_link(document_link) -> bool:
-    # try except statement here that returns True if it can download the link and False if it can't
-    driver.get(document_link)
-    try:
+def download_document_at_link(document_link, document_name) -> bool:
+    # While True loop is broken either when the document is downloaded or the VPN is changed successfully and then downloaded.
+    # Failure is not currently an option in this control-flow schema but it might have to be. More testing needs to be done.
+    while True:
+        # This link is unreachable unless connected to VPN as ISP is blocking it...
+        driver.get(document_link)
         download_link = WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[2]/div[1]/div[1]/div/a')))
-        print(download_link)
-        print(type(download_link))
-        time.sleep(3)
-    except:
-        print("ELEMENT NOT LOCATED")
+        download_link.click()
+        print(f"Attempting download of {GREEN}{document_name}{RESET}")
+        try:
+            # Check to see if there's a redirection to "THE PAY WALL"; If there is, then return false to the calling funcion
+            exhausted_ip = WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[1]/div/div/span')))
+            print(f"{YELLOW}PAYWALL REACHED{RESET}. IP: {RED}{exhausted_ip.text}{RESET} has now become exahausted")
+            # Change the vpn since the pay wall has been hit
+            change_vpn()
+            print("mark0")
+            print("sleeping")
+            time.sleep(10)
+            print("after sleep")
+            continue
+        except:
+            print("Item downloading")
+            break
+    return True
 
 
 
@@ -78,11 +92,11 @@ def main() -> None:
     args = parser.add_argument("linkfile", help=".csv link source-file", type=str)
     args = parser.parse_args()
 
-    vpn_change_success = change_vpn()
-    if vpn_change_success == True:
-        print("VPN change was successful")
-    else:
-        print("VPN Change was unsuccessful")
+    #vpn_change_success = change_vpn()
+    #if vpn_change_success == True:
+    #    print("VPN change was successful")
+    #else:
+    #    print("VPN Change was unsuccessful")
     
     # The below csv reader will cycle through all the available links in the .csv
     with open(f"{args.linkfile}", mode="r") as linkfile:
@@ -91,7 +105,8 @@ def main() -> None:
             document_title = row[0]
             document_download_url = row[1]
             print(f"Downloading {GREEN}{document_title}{RESET} from {YELLOW}{document_download_url}{RESET}")
-            download_document_at_link(document_download_url)
+            download_document_at_link(document_download_url, document_title)
+
 
 
 if __name__ == "__main__":
