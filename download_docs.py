@@ -51,6 +51,7 @@ RESET = Fore.RESET
 # The boolean this function returns tells the calling function whether or not the VPN change was successful or not
 def change_vpn() -> bool:
     exit_code = os.system('jvs -r')
+    # Lets the calling function know whether the VPN change was a success or not
     if exit_code == 0:
         return True
     else:
@@ -65,22 +66,24 @@ def download_document_at_link(document_link, document_name) -> bool:
     while True:
         # This link is unreachable unless connected to VPN as ISP is blocking it...
         driver.get(document_link)
-        download_link = WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[2]/div[1]/div[1]/div/a')))
+        # xpath to download button on the 'book-details' page
+        download_link = WebDriverWait(driver, 18).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[2]/div[2]/div[1]/div[1]/div/a')))
         download_link.click()
         print(f"Attempting download of {GREEN}{document_name}{RESET}")
         try:
             # Check to see if there's a redirection to "THE PAY WALL"; If there is, then return false to the calling funcion
-            exhausted_ip = WebDriverWait(driver, 12).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[1]/div/div/span')))
+            exhausted_ip = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[1]/div/div/span')))
             print(f"{YELLOW}PAYWALL REACHED{RESET}. IP: {RED}{exhausted_ip.text}{RESET} has now become exahausted")
             # Change the vpn since the pay wall has been hit
             change_vpn()
-            print("mark0")
-            print("sleeping")
-            time.sleep(10)
-            print("after sleep")
+            print(f"{RED}Public IP changed with VPN{RESET}")
+            driver.get(document_link)
             continue
+        # Above it tries to identify if it hit the paywall, if not then the below except block is triggered
         except:
             print("Item downloading")
+            # I need to allow for the program to finish downloading before it starts changing the VPN for new downloads
+            time.sleep(25)
             break
     return True
 
