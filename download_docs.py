@@ -75,8 +75,8 @@ def download_document_at_link(document_link, document_name) -> bool:
             exhausted_ip = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/table/tbody/tr[2]/td/div/div/div/div[1]/div/div/span')))
             print(f"{YELLOW}PAYWALL REACHED{RESET}. IP: {RED}{exhausted_ip.text}{RESET} has now become exahausted")
             # Change the vpn since the pay wall has been hit
-            change_vpn()
-            print(f"{RED}Public IP changed with VPN{RESET}")
+            #change_vpn()
+            irrelevant = input(f"{RED}CHANGE VPN{RESET} in open terminal and then press enter to continue when all downloads are finished")
             driver.get(document_link)
             continue
         # Above it tries to identify if it hit the paywall, if not then the below except block is triggered
